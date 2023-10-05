@@ -21,11 +21,14 @@ hubspot.extend(({ context, runServerlessFunction, actions }) => (
 // Define the Extension component, taking in runServerless, context, & sendAlert as props
 const Extension = ({ context, runServerless, sendAlert }) => {
   const [text, setText] = useState("");
+  const [dealId, setDealId] = useState();
 
   // Call serverless function to execute with parameters.
   // The `myFunc` function name is configured inside `serverless.json`
   const handleClick = () => {
-    runServerless({ name: "myFunc", parameters: { text: text } }).then((resp) =>
+    runServerless({
+      name: "myFunc", parameters: { text: text } , propertiesToSend: ['hs_object_id']
+    }).then((resp) =>
       sendAlert({ message: resp.response })
     );
   };
@@ -36,41 +39,13 @@ const Extension = ({ context, runServerless, sendAlert }) => {
         <Text format={{ fontWeight: "bold" }}>
           Your first UI extension is ready!
         </Text>
-        Congratulations, {context.user.firstName}! You just deployed your first
-        HubSpot UI extension. This example demonstrates how you would send
-        parameters from your React frontend to the serverless function and get a
-        response back.
       </Text>
       <Flex direction="row" align="end" gap="small">
-        <Input name="text" label="Send" onInput={(t) => setText(t)} />
         <Button type="submit" onClick={handleClick}>
-          Click me
+          Créer un canal slack
         </Button>
       </Flex>
       <Divider />
-      <Text>
-        What now? Explore all available{" "}
-        <Link href="https://developers.hubspot.com/docs/platform/ui-extension-components">
-          UI components
-        </Link>
-        , get an overview of{" "}
-        <Link href="https://developers.hubspot.com/docs/platform/ui-extensions-overview">
-          UI extensions
-        </Link>
-        , learn how to{" "}
-        <Link href="https://developers.hubspot.com/docs/platform/create-ui-extensions">
-          add a new custom card
-        </Link>
-        , jump right in with our{" "}
-        <Link href="https://developers.hubspot.com/docs/platform/ui-extensions-quickstart">
-          Quickstart Guide
-        </Link>
-        , or check out our{" "}
-        <Link href="https://github.com/HubSpot/ui-extensions-react-examples">
-          code Samples
-        </Link>
-        .
-      </Text>
     </>
   );
 };
