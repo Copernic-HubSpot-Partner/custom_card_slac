@@ -2,8 +2,12 @@
   "runtime": "nodejs16.x",
   "version": "1.0",
   "appFunctions": {
-    "myFunc": {
+    "ChannelCreation": {
       "file": "example-function.js",
+      "secrets": []
+    },
+    "messageUpdate": {
+      "file": "message-slack.js",
       "secrets": []
     }
   }

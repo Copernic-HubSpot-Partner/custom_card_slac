@@ -27,9 +27,9 @@ const Extension = ({ context, runServerless, sendAlert }) => {
 
   // Call serverless function to execute with parameters.
   // The `myFunc` function name is configured inside `serverless.json`
-  const handleClick = () => {
+  const createChannel = () => {
     runServerless({
-      name: "myFunc", parameters: { text: text } , propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id', 'hubspot_owner_id']
+      name: "ChannelCreation", parameters: { text: text } , propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id', 'hubspot_owner_id']
     }).then((resp) => {
       sendAlert({ message: resp.response.message, type: resp.response.type })
     });
@@ -43,7 +43,7 @@ const Extension = ({ context, runServerless, sendAlert }) => {
         </Text>
       </Text>
       <Flex direction="row" align="end" gap="small">
-        <Button type="submit" onClick={handleClick}>
+        <Button type="submit" onClick={createChannel}>
           Créer
         </Button>
       </Flex>

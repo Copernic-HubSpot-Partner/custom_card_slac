@@ -7,8 +7,8 @@ const axios = require('axios');
 //   accessToken: AUTH_HS,
 // });
 
-var HS_HEADER
-var SLACK_HEADER
+let HS_HEADER
+let SLACK_HEADER
 
 /**
  * Chargement du .env
@@ -56,9 +56,10 @@ exports.main = async (context = {}, sendResponse) => {
   // const { hs_object_id } = context.properties;
   let response = { message: "", type: "tip" }
   let channelId = context.propertiesToSend.slack_channel_id
+  let userEmails = []
   setupAuthentification()
 
-  if(channelId == "") {
+  if(channelId == null) {
     const dealname = context.propertiesToSend.dealname
     const [channelId, res] = await createChannel(dealname);
 
@@ -75,7 +76,10 @@ exports.main = async (context = {}, sendResponse) => {
     response.type = "warning"
   }
 
-  let userEmails = [await getUsersEmail(context.propertiesToSend.hubspot_owner_id), "alban@agence-copernic.fr"] // Ajouter Mélanie...
+  if(context.propertiesToSend.hubspot_owner_id != null) {
+    userEmails.push(await getUsersEmail(context.propertiesToSend.hubspot_owner_id))
+  }
+  // let userEmails = [await getUsersEmail(context.propertiesToSend.hubspot_owner_id), "alban@agence-copernic.fr"] // Ajouter Mélanie...
 
   await addChannelUsers(channelId, userEmails)
 
