@@ -58,7 +58,9 @@ exports.main = async (context = {}, sendResponse) => {
     let channelId = context.propertiesToSend.slack_channel_id
     setupAuthentification()
 
-    let messages = getMessages(channelId)
+    let messages = await getMessages(channelId)
+
+    console.log(messages)
 
     try {
         sendResponse(messages);
