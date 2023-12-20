@@ -60,6 +60,8 @@ exports.main = async (context = {}, sendResponse) => {
 
     let messages = getMessages(channelId)
 
+    console.log(messages)
+
     try {
         sendResponse(messages);
     } catch (error) {
