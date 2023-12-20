@@ -87,8 +87,7 @@ async function getChannelInfo(channelId) {
 
 
     if (res.data.ok) {
-        const channel = { name: res.data.channel.name, id: res.data.channel.id }
-        return channel
+        return { name: res.data.channel.name, id: res.data.channel.id }
     }
     return ""
 }
