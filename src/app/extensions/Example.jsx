@@ -8,6 +8,7 @@ import {
   Flex,
   hubspot,
 } from "@hubspot/ui-extensions";
+import {Channel} from "./components/Channel";
 
 // Define the extension to be run within the Hubspot CRM
 hubspot.extend(({ context, runServerlessFunction, actions }) => (
@@ -17,6 +18,7 @@ hubspot.extend(({ context, runServerlessFunction, actions }) => (
     sendAlert={actions.addAlert}
   />
 ));
+
 
 // Define the Extension component, taking in runServerless, context, & sendAlert as props
 const Extension = ({ context, runServerless, sendAlert }) => {
@@ -48,6 +50,7 @@ const Extension = ({ context, runServerless, sendAlert }) => {
         </Button>
       </Flex>
       <Divider />
+      <Channel />
     </>
   );
 };
