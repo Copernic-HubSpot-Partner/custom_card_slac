@@ -60,36 +60,36 @@ exports.main = async (context = {}, sendResponse) => {
     let channelId = context.propertiesToSend.slack_channel_id
     setupAuthentification()
 
-    let {messages, users} = await getMessages(channelId)
+    let { messages, users } = await getMessages(channelId)
 
     try {
-        sendResponse({messages: messages, users: users});
+        sendResponse({ messages: messages, users: users });
     } catch (error) {
         sendResponse(error);
     }
 };
 
 async function getUserInfo(userId) {
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: 'https://slack.com/api/users.info',
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': `Bearer ${process.env["SLACKTOKEN"]}`
-    },
-    data : {
-      user: userId
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://slack.com/api/users.info',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${process.env["SLACKTOKEN"]}`
+        },
+        data: {
+            user: userId
+        }
+    };
+
+    let res = await effectuerRequete(config)
+
+    if (res.data.ok) {
+        return { name: res.data.user.real_name, avatar: res.data.user.profile.image_48, id: userId }
     }
-  };
 
-  let res = await effectuerRequete(config)
-
-  if(res.data.ok) {
-    return {name: res.data.user.real_name, avatar: res.data.user.profile.image_48}
-  }
-
-  return ""
+    return ""
 }
 
 async function getMessages(channelId) {
@@ -101,9 +101,9 @@ async function getMessages(channelId) {
             channel: channelId
         }
     }
-  
+
     let res = await effectuerRequete(config)
-  
+
     if (res.data.ok) {
         let messages = res.data.messages.map(msg => {
             return {
@@ -112,23 +112,23 @@ async function getMessages(channelId) {
                 user: msg.user
             };
         });
-  
+
         let userIds = [];
         let users = []
-  
+
         for (const message in messages) {
-          const regex = /<@(U[A-Z0-9]+)>/; // Regex pour identifier les identifiants Slack
-          const matches = messages[message].content.match(regex);
-          
-          if (matches && matches[1]) {
-            if(!userIds.includes(matches[1])) {
-              users.push(await getUserInfo(matches[1]))
-  
-              userIds.push(matches[1]);
+            const regex = /<@(U[A-Z0-9]+)>/; // Regex pour identifier les identifiants Slack
+            const matches = messages[message].content.match(regex);
+
+            if (matches && matches[1]) {
+                if (!userIds.includes(matches[1])) {
+                    users.push(await getUserInfo(matches[1]))
+
+                    userIds.push(matches[1]);
+                }
             }
-          }
         }
-  
-        return {messages: messages, users: users}
+
+        return { messages: messages, users: users }
     }
-  }
+}
