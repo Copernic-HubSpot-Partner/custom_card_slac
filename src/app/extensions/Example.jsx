@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
   Divider,
   Link,
@@ -24,16 +24,17 @@ hubspot.extend(({ context, runServerlessFunction, actions }) => (
 const Extension = ({ context, runServerless, sendAlert }) => {
   const [text, setText] = useState("");
   const [dealId, setDealId] = useState();
-
-  console.log(context)
+  const [messages, setMessages] = useState([]);
 
   // Call serverless function to execute with parameters.
   // The `myFunc` function name is configured inside `serverless.json`
-  const createChannel = () => {
+  const createChannel = async () => {
     runServerless({
-      name: "ChannelCreation", parameters: { text: text } , propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id', 'hubspot_owner_id']
+      name: "ChannelCreation",
+      parameters: {text: text},
+      propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id', 'hubspot_owner_id']
     }).then((resp) => {
-      sendAlert({ message: resp.response.message, type: resp.response.type })
+      sendAlert({message: resp.response.message, type: resp.response.type})
     });
   };
 
@@ -41,9 +42,15 @@ const Extension = ({ context, runServerless, sendAlert }) => {
     runServerless({
       name: "messageUpdate", parameters: { text: text } , propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id']
     }).then((resp) => {
-      sendAlert({ messages: resp.messages})
+      setMessages(resp.response)
+      console.log(resp.response, "resp.response")
     });
   };
+
+useEffect(() => {
+  messageUpdate();
+}, []);
+
 
   return (
     <>
@@ -56,9 +63,12 @@ const Extension = ({ context, runServerless, sendAlert }) => {
         <Button type="submit" onClick={createChannel}>
           Créer
         </Button>
+        <Button type="submit" onClick={messageUpdate}>
+          Get Messages
+        </Button>
       </Flex>
       <Divider />
-      <Channel />
+      <Channel messages={messages} />
     </>
   );
 };
