@@ -59,12 +59,12 @@ exports.main = async (context = {}, sendResponse) => {
   let userEmails = []
   setupAuthentification()
 
-  if(channelId == null) {
+  if (channelId == null || channelId == "") {
     const dealname = context.propertiesToSend.dealname
     const [channelId, res] = await createChannel(dealname);
 
     if (res.ok) {
-      await updateDeal(context.propertiesToSend.hs_object_id, {slack_channel_id: channelId})
+      await updateDeal(context.propertiesToSend.hs_object_id, { slack_channel_id: channelId })
       response.message = "Salon crée avec succès !"
       response.type = "info"
     } else {
@@ -76,7 +76,7 @@ exports.main = async (context = {}, sendResponse) => {
     response.type = "warning"
   }
 
-  if(context.propertiesToSend.hubspot_owner_id != null) {
+  if (context.propertiesToSend.hubspot_owner_id != null) {
     userEmails.push(await getUsersEmail(context.propertiesToSend.hubspot_owner_id))
   }
   // let userEmails = [await getUsersEmail(context.propertiesToSend.hubspot_owner_id), "alban@agence-copernic.fr"] // Ajouter Mélanie...
@@ -101,13 +101,13 @@ async function createChannel(name) {
     url: `https://slack.com/api/conversations.create`,
     headers: SLACK_HEADER,
     data: {
-      name: name.toLowerCase().replace(/ /g,"-")
+      name: name.toLowerCase().replace(/ /g, "-")
     }
   }
-  
+
   let res = await effectuerRequete(config)
-  
-  if(res.data.ok) {
+
+  if (res.data.ok) {
     return [res.data.channel.id, res.data]
   }
   else {
@@ -161,10 +161,10 @@ async function getUserSlackId(email) {
     url: `https://slack.com/api/users.lookupByEmail?email=${email}`,
     headers: SLACK_HEADER
   }
-  
+
   let res = await effectuerRequete(config)
-  
-  if(res.data.ok) {
+
+  if (res.data.ok) {
     return res.data.user.id
   }
   return ""
@@ -178,12 +178,12 @@ async function getUserSlackId(email) {
 async function getIdList(tabEmail) {
   let idList = ""
   for (i in tabEmail) {
-    if(idList != "") {
+    if (idList != "") {
       idList += ","
     }
     idList += await getUserSlackId(tabEmail[i])
   }
-  
+
   return idList
 }
 
@@ -199,6 +199,6 @@ async function addChannelUsers(channelId, userEmails) {
       users: userList
     }
   }
-  
+
   await effectuerRequete(config)
 }
