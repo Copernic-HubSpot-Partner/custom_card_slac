@@ -35,6 +35,14 @@ const Extension = ({ context, runServerless, sendAlert }) => {
     });
   };
 
+  const messageUpdate = () => {
+    runServerless({
+      name: "messageUpdate", parameters: { text: text } , propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id']
+    }).then((resp) => {
+      sendAlert({ messages: resp.messages})
+    });
+  };
+
   return (
     <>
       <Text>
