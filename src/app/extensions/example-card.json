@@ -1,8 +1,8 @@
 {
   "type": "crm-card",
   "data": {
-    "title": "Example Card",
-    "uid": "get_started_card",
+    "title": "Slack Channel Creation",
+    "uid": "slack_channel_creation",
     "location": "crm.record.tab",
     "module": {
       "file": "Example.jsx"

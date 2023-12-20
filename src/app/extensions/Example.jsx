@@ -23,26 +23,28 @@ const Extension = ({ context, runServerless, sendAlert }) => {
   const [text, setText] = useState("");
   const [dealId, setDealId] = useState();
 
+  console.log(context)
+
   // Call serverless function to execute with parameters.
   // The `myFunc` function name is configured inside `serverless.json`
   const handleClick = () => {
     runServerless({
-      name: "myFunc", parameters: { text: text } , propertiesToSend: ['hs_object_id']
-    }).then((resp) =>
-      sendAlert({ message: resp.response })
-    );
+      name: "myFunc", parameters: { text: text } , propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id', 'hubspot_owner_id']
+    }).then((resp) => {
+      sendAlert({ message: resp.response.message, type: resp.response.type })
+    });
   };
 
   return (
     <>
       <Text>
         <Text format={{ fontWeight: "bold" }}>
-          Your first UI extension is ready!
+          Créer un salon Slack
         </Text>
       </Text>
       <Flex direction="row" align="end" gap="small">
         <Button type="submit" onClick={handleClick}>
-          Créer un canal slack
+          Créer
         </Button>
       </Flex>
       <Divider />
