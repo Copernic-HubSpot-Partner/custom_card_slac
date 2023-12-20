@@ -10,6 +10,8 @@ const axios = require('axios');
 let HS_HEADER
 let SLACK_HEADER
 
+let users
+
 /**
  * Chargement du .env
  */
@@ -58,16 +60,39 @@ exports.main = async (context = {}, sendResponse) => {
     let channelId = context.propertiesToSend.slack_channel_id
     setupAuthentification()
 
-    let messages = await getMessages(channelId)
+    let {messages, users} = await getMessages(channelId)
 
     console.log(messages)
 
     try {
-        sendResponse(messages);
+        sendResponse({messages: messages, users: users});
     } catch (error) {
         sendResponse(error);
     }
 };
+
+async function getUserInfo(userId) {
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://slack.com/api/users.info',
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': `Bearer ${process.env["SLACKTOKEN"]}`
+    },
+    data : {
+      user: userId
+    }
+  };
+
+  let res = await effectuerRequete(config)
+
+  if(res.data.ok) {
+    return {name: res.data.user.real_name, avatar: res.data.user.profile.image_48}
+  }
+
+  return ""
+}
 
 async function getMessages(channelId) {
     let config = {
@@ -79,7 +104,7 @@ async function getMessages(channelId) {
         }
     }
   
-    let res = await axios.request(config)
+    let res = await effectuerRequete(config)
   
     if (res.data.ok) {
         let messages = res.data.messages.map(msg => {
@@ -90,7 +115,24 @@ async function getMessages(channelId) {
             };
         });
   
-        return messages
+        let userIds = [];
+        let users = []
   
+        for (const message in messages) {
+          const regex = /<@(U[A-Z0-9]+)>/; // Regex pour identifier les identifiants Slack
+          const matches = messages[message].content.match(regex);
+          
+          if (matches && matches[1]) {
+            if(!userIds.includes(matches[1])) {
+              users.push(await getUserInfo(matches[1]))
+  
+              userIds.push(matches[1]);
+            }
+          }
+        }
+  
+        // console.log(users)
+  
+        return {messages: messages, users: users}
     }
   }
