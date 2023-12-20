@@ -62,8 +62,6 @@ exports.main = async (context = {}, sendResponse) => {
 
     let {messages, users} = await getMessages(channelId)
 
-    console.log(messages)
-
     try {
         sendResponse({messages: messages, users: users});
     } catch (error) {
@@ -130,8 +128,6 @@ async function getMessages(channelId) {
             }
           }
         }
-  
-        // console.log(users)
   
         return {messages: messages, users: users}
     }
