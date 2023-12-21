@@ -6,14 +6,54 @@ import {
     Divider,
     Flex,
     Image,
-    Input,
+    Input, LoadingSpinner,
     Text,
     TextArea,
     Tile
 } from "@hubspot/ui-extensions";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
-export const Channel = ({messages}) => {
+export const Channel = ({channelInfos}) => {
+    const [isLoading, setIsLoading] = useState(!channelInfos);
+    const [messages, setMessages] = useState([]);
+
+    useEffect(() => {
+        if (channelInfos && channelInfos.users && channelInfos.messages) {
+            // Créer une map pour les utilisateurs
+            const usersMap = new Map(channelInfos.users.map(user => [user.id, user]));
+
+            // Mettre à jour les messages avec les infos des utilisateurs
+            const updatedMessages = channelInfos.messages.map(message => ({
+                ...message,
+                user_info: usersMap.get(message.user),
+                content: replaceMentionsWithNames(message.content, usersMap),
+                timestamp: formatTimestamp(message.timestamp)
+            })).reverse();
+
+            setMessages(updatedMessages);
+            setIsLoading(false);
+        }
+    }, [channelInfos]);
+
+    const replaceMentionsWithNames = (message, usersMap) => {
+        const mentionRegex = /<@(\w+)>/g;
+        return message.replace(mentionRegex, (match, userId) => {
+            const user = usersMap.get(userId);
+            return user ? `@${user.name}` : match;
+        });
+    }
+
+    const formatTimestamp = (timestamp) => {
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleDateString("fr-FR") + ' ' + date.toLocaleTimeString("fr-FR");
+    }
+
+
+    // Style pour le conteneur des messages
+    const messageContainerStyle = {
+        maxWidth: '50px', // Limite la largeur maximale
+        overflowY: 'auto', // Permet un défilement vertical si le contenu dépasse
+    };
 
 
     return (
@@ -22,56 +62,83 @@ export const Channel = ({messages}) => {
             {/* Header avec le nom du channel slack et les participants */}
             <Tile>
                 <Flex direction='row' gap='sm'>
-                    <Accordion title="Slacks Channels Name" defaultOpen={false} disabled={true} size={'sm'}>
-                        <Text>suspendisse potenti nullam ac tortor vitae purus faucibus ornare suspendisse sed nisi
-                            lacus sed viverra tellus in hac habitasse platea dictumst vestibulum rhoncus est
-                            pellentesque</Text>
-                    </Accordion>
-                    <Flex gap={'xs'} justify={'end'}>
-                        <Image
-                            src='https://ca.slack-edge.com/T06AMU20RA6-U06ASDUGR4K-gdea7eee9143-192'
-                            alt='placeholder'
-                            width='24'
-                            height='24'
-                        />
-                        <Image
-                            src='https://ca.slack-edge.com/T06AMU20RA6-U06ASDUGR4K-gdea7eee9143-192'
-                            alt='placeholder'
-                            width='24'
-                            height='24'
-                        />
-                        <Image
-                            src='https://ca.slack-edge.com/T06AMU20RA6-U06ASDUGR4K-gdea7eee9143-192'
-                            alt='placeholder'
-                            width='24'
-                            height='24'
-                        />
-                        <Text>3</Text>
-                    </Flex>
+                    {isLoading ? (
+                        <Flex direction='row' gap='sm'>
+                            <LoadingSpinner/>
+                            <Text>Chargement...</Text>
+                        </Flex>
 
+                    ) : (
+                        <>
+                            <Accordion title="Slacks Channels Name" defaultOpen={false} disabled={true} size={'sm'}>
+                                <Text>suspendisse potenti nullam ac tortor vitae purus faucibus ornare suspendisse sed
+                                    nisi
+                                    lacus sed viverra tellus in hac habitasse platea dictumst vestibulum rhoncus est
+                                    pellentesque</Text>
+                            </Accordion>
+                            <Flex gap={'xs'} justify={'end'}>
+                                <Image
+                                    src='https://ca.slack-edge.com/T06AMU20RA6-U06ASDUGR4K-gdea7eee9143-192'
+                                    alt='placeholder'
+                                    width='24'
+                                    height='24'
+                                />
+                                <Image
+                                    src='https://ca.slack-edge.com/T06AMU20RA6-U06ASDUGR4K-gdea7eee9143-192'
+                                    alt='placeholder'
+                                    width='24'
+                                    height='24'
+                                />
+                                <Image
+                                    src='https://ca.slack-edge.com/T06AMU20RA6-U06ASDUGR4K-gdea7eee9143-192'
+                                    alt='placeholder'
+                                    width='24'
+                                    height='24'
+                                />
+                                <Text>3</Text>
+                            </Flex>
+                        </>
+                    )}
                 </Flex>
             </Tile>
 
-            {/* Container des messages et de l'input */}
+            {/* Container des messages et de l'input pour envoyer un message*/}
             <Tile>
                 {/* Messages */}
-                <Flex direction='row' gap='sm'>
-                    <Image
-                        src='https://ca.slack-edge.com/T06AMU20RA6-U06ASDUGR4K-gdea7eee9143-192'
-                        alt='placeholder'
-                        width='55'
-                        height='48'
-                    />
-                    <Flex direction='column'>
-                        <Flex direction='row' gap={'sm'}>
-                            <Text format={{fontWeight: 'bold'}}>Prénom Nom</Text>
-                            <Text format={{fontWeight: 'light'}}>Heure</Text>
-                        </Flex>
-                        {/* Text lorem 25*/}
-                        <Text>
-                            suspendisse potenti nullam ac tortor vitae purus faucibus ornare suspendisse
-                        </Text>
+                <Flex direction='column' gap='sm'>
+                {isLoading ? (
+                    <Flex direction='row' gap='sm'>
+                        <LoadingSpinner/>
+                        <Text>Chargement...</Text>
                     </Flex>
+
+                ) : (
+                    messages.map((message) => (
+                        (
+                            <Flex direction='row' gap='sm' style={messageContainerStyle} className="Hello-world">
+
+                                <Image
+                                    src={message.user_info.avatar}
+                                    alt='placeholder'
+                                    width='55'
+                                    height='48'
+                                />
+                                <Flex direction='column'>
+                                    <Flex direction='row' gap={'sm'}>
+                                        <Text format={{fontWeight: 'bold'}}>{message.user_info.name}</Text>
+                                        <Text format={{fontWeight: 'light'}}>Heure</Text>
+                                    </Flex>
+                                    {/* Text lorem 25*/}
+                                    <Text>
+                                        {message.content}
+                                    </Text>
+                                </Flex>
+                            </Flex>
+
+                        )
+                    ))
+
+                )}
                 </Flex>
                 <Divider/>
                 <Flex
@@ -93,3 +160,4 @@ export const Channel = ({messages}) => {
         </Flex>
     );
 };
+

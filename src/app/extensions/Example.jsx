@@ -24,7 +24,7 @@ hubspot.extend(({ context, runServerlessFunction, actions }) => (
 const Extension = ({ context, runServerless, sendAlert }) => {
   const [text, setText] = useState("");
   const [dealId, setDealId] = useState();
-  const [messages, setMessages] = useState([]);
+  const [channelInfos, setChannelInfos] = useState([]);
 
   // Call serverless function to execute with parameters.
   // The `myFunc` function name is configured inside `serverless.json`
@@ -42,7 +42,7 @@ const Extension = ({ context, runServerless, sendAlert }) => {
     runServerless({
       name: "messageUpdate", parameters: { text: text } , propertiesToSend: ['hs_object_id', 'dealname', 'slack_channel_id']
     }).then((resp) => {
-      setMessages(resp.response)
+      setChannelInfos(resp.response)
       console.log(resp.response, "resp.response")
     });
   };
@@ -68,7 +68,7 @@ useEffect(() => {
         </Button>
       </Flex>
       <Divider />
-      <Channel messages={messages} />
+      <Channel channelInfos={channelInfos} />
     </>
   );
 };
