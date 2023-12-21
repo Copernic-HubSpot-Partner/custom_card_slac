@@ -62,12 +62,35 @@ exports.main = async (context = {}, sendResponse) => {
 
     let { messages, users } = await getMessages(channelId)
 
+    let channel = await getChannelInfo(channelId)
+
     try {
-        sendResponse({ messages: messages, users: users });
+        sendResponse({ messages: messages, users: users, channel: channel });
     } catch (error) {
         sendResponse(error);
     }
 };
+
+async function getChannelInfo(channelId) {
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://slack.com/api/conversations.info',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${process.env["SLACKTOKEN"]}`
+        },
+        data: {
+            channel: channelId
+        }
+    };
+
+
+    if (res.data.ok) {
+        return { name: res.data.channel.name, id: res.data.channel.id }
+    }
+    return ""
+}
 
 async function getUserInfo(userId) {
     let config = {
