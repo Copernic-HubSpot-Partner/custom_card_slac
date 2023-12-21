@@ -43,8 +43,7 @@ const effectuerRequete = async (config) => {
         } catch (error) {
             if (error.response && error.response.status === 429) {
                 await delay(11000)
-            }
-            else {
+            } else {
                 console.log("ERREUR requête : \n" + JSON.stringify(error.response.data))
                 succes = 1
             }
@@ -56,16 +55,16 @@ const effectuerRequete = async (config) => {
 exports.main = async (context = {}, sendResponse) => {
     // const { text } = context.parameters;
     // const { hs_object_id } = context.properties;
-    let response = { message: "", type: "tip" }
+    let response = {message: "", type: "tip"}
     let channelId = context.propertiesToSend.slack_channel_id
     setupAuthentification()
 
-    let { messages, users } = await getMessages(channelId)
+    let {messages, users} = await getMessages(channelId)
 
     let channel = await getChannelInfo(channelId)
 
     try {
-        sendResponse({ messages: messages, users: users, channel: channel });
+        sendResponse({messages: messages, users: users, channel: channel});
     } catch (error) {
         sendResponse(error);
     }
@@ -85,9 +84,10 @@ async function getChannelInfo(channelId) {
         }
     };
 
+    let res = await effectuerRequete(config)
 
     if (res.data.ok) {
-        return { name: res.data.channel.name, id: res.data.channel.id }
+        return {name: res.data.channel.name, id: res.data.channel.id}
     }
     return ""
 }
@@ -109,7 +109,7 @@ async function getUserInfo(userId) {
     let res = await effectuerRequete(config)
 
     if (res.data.ok) {
-        return { name: res.data.user.real_name, avatar: res.data.user.profile.image_48, id: userId }
+        return {name: res.data.user.real_name, avatar: res.data.user.profile.image_48, id: userId}
     }
 
     return ""
@@ -152,6 +152,6 @@ async function getMessages(channelId) {
             }
         }
 
-        return { messages: messages, users: users }
+        return {messages: messages, users: users}
     }
 }
