@@ -84,7 +84,7 @@ async function getChannelInfo(channelId) {
         }
     };
 
-    let res = await effectuerRequete(config)
+    const res = await effectuerRequete(config)
 
     if (res.data.ok) {
         return {name: res.data.channel.name, id: res.data.channel.id}
